@@ -1,5 +1,5 @@
 /*
- Option parser - An embedded program option parser written in C++ for Windows platform. 
+ Option parser - An embedded program option parser (POSIX/GNU style) written in C++ for Windows platform. 
  https://github.com/fshb/optparser/
  Copyright (c) 2019 Sun Hongbo (Felix)
 
