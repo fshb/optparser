@@ -320,13 +320,8 @@ public:
 					{
 						if (!parse_short_option(opt, zArg[k], optdefs))
 						{
-							TCHAR *c = new TCHAR[3];
-							c[0] = '-';
-							c[1] = zArg[k];
-							c[2] = '\0';
-							err(_T("%s ==> %s: unknown option!\n"),
-								zArg.c_str(), c);
-							delete c;
+							err(_T("%s ==> -%c: unknown option!\n"),
+								zArg.c_str(), zArg[k]);
 						}
 						else
 						{
@@ -359,14 +354,8 @@ public:
 								} //END if(k == 1)
 								else
 								{
-									TCHAR *c = new TCHAR[3];
-									c[0] = '-';
-									c[1] = zArg[k];
-									c[2] = '\0';
-									err(_T("%s ==> %s: attempt to take argument in compressed option format! \n\t==> %s: illegal argument!\n"),
-										zArg.c_str(), c, zArg.substr(k + 1).c_str());
-
-									delete c;
+									err(_T("%s ==> -%c: attempt to take argument in compressed option format! \n\t==> %s: illegal argument!\n"),
+										zArg.c_str(), zArg[k], zArg.substr(k + 1).c_str());
 								}
 							} //END if(opt.kind == required_argument || opt.kind == optional_argument)
 							else
@@ -376,7 +365,7 @@ public:
 						} //END else
 						k++;
 					} //END while (k < len)
-				}	 //END else if(zArg[1] != '-')
+				} //END else if(zArg[1] != '-')
 				else
 				{
 					if (zArg[2] == '\0') //"--" delimeter
@@ -412,9 +401,9 @@ public:
 								_optlist.push_back(opt);
 							}
 						} //END else
-					}	 //END else
-				}		  //END else
-			}			  //END if(zArg[0] == '-')
+					} //END else
+				} //END else
+			} //END if(zArg[0] == '-')
 			else
 			{
 				parse_operand(opt, zArg);
