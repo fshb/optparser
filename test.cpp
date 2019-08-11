@@ -32,8 +32,8 @@ str KSTR(int kind)
 	str s;
 	switch (kind)
 	{
-	case option::unknown:
-		s = _T("unknown");
+	case option::error:
+		s = _T("error");
 		break;
 	case option::operand:
 		s = _T("operand");
@@ -56,12 +56,12 @@ str KSTR(int kind)
 int main()
 {
 	option::definition optdefs[] = {
-		{_T("--input"), 'i', option::required_argument, NULL},
-		{_T("--output"), 'o', option::required_argument, NULL},
-		{_T("--help"), 'h', option::no_argument, NULL},
-		{_T("--verbose"), 'v', option::no_argument, NULL},
-		{_T("--check"), 'c', option::optional_argument, NULL},
-		{_T("--status"), 1234, option::optional_argument, NULL},
+		{_T("--input"), 'i', option::required_argument},
+		{_T("--output"), 'o', option::required_argument},
+		{_T("--help"), 'h', option::no_argument},
+		{_T("--verbose"), 'v', option::no_argument},
+		{_T("--check"), 'c', option::optional_argument},
+		{_T("--status"), 1234, option::optional_argument},
 		option::definition::nullopt()
 	};
 	const TCHAR *argv[] =
@@ -75,15 +75,17 @@ int main()
 		_T("-c"),
 		_T("--output"),
 		_T("--help"),
+		_T("operand_str"),
 		_T("-cabc"),
 		_T("--help=abc"),
 		_T("-?ch"),
-		_T("-hcsabc"),
+		_T("-hcsABc"),
 		//_T("--input")
 		_T("--"),
 		_T("-iabc"),
 		_T("-"),
 		_T("--input")
+		//_T("-i")
 	};
 
 	int argc = _countof(argv);
@@ -98,10 +100,10 @@ int main()
 
 
 	option opt(argc, argv, optdefs);
-	_tprintf(_T("\n\nParsing result:\n"));
+	_tprintf(_T("\n\nParsing result (reordered):\n"));
 	while (!opt.is_end())
 	{
-		_tprintf(_T("Option: %s, \tValue: %c, \tKind: %s, \tArg: %s\n"), 
+		_tprintf(_T("Option: %10s, Value: %4c, Kind: %20s, Arg: %s\n"), 
 			opt.optname().c_str(), 
 			opt.value(), 
 			KSTR(opt.kind()).c_str(), 

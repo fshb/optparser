@@ -14,22 +14,25 @@ Copyright (c) 2019 Sun Hongbo (Felix)
 
 # Usage
 ```CPP
+#include "opt.h"//include optparser header
+
+void Error(){ /*TODO: Code...*/}
 void Usage() { /*TODO: Code...*/}
 void Verbose(){ /*TODO: Code...*/}
-void Check(str zArg){ /*TODO: Code...*/}
-void SetStatus(str zArg){ /*TODO: Code...*/}
+void Check(str argstr){ /*TODO: Code...*/}
+void SetStatus(str argstr){ /*TODO: Code...*/}
 void GetInput(str input){ /*TODO: Code...*/}
 void GetOutput(str output){ /*TODO: Code...*/}
 
 int main(int argc, TCHAR *argv[])
 {
 	option::definition optdefs[] = {
-		{_T("--input"), 'i', option::required_argument, NULL},
-		{_T("--output"), 'o', option::required_argument, NULL},
-		{_T("--help"), 'h', option::no_argument, NULL},
-		{_T("--verbose"), 'v', option::no_argument, NULL},
-		{_T("--check"), 'c', option::optional_argument, NULL},
-		{_T("--status"), 1234, option::optional_argument, NULL},
+		{_T("--input"), 'i', option::required_argument},
+		{_T("--output"), 'o', option::required_argument},
+		{_T("--help"), 'h', option::no_argument},
+		{_T("--verbose"), 'v', option::no_argument},
+		{_T("--check"), 'c', option::optional_argument},
+		{_T("--status"), 1234, option::optional_argument},
 		option::definition::nullopt()};
 
 	option opt(argc, argv, optdefs);//parse options
@@ -53,8 +56,13 @@ int main(int argc, TCHAR *argv[])
 			SetStatus(opt.argstr());
 			break;
 
+		case '?': //will generate a "?" as an error indicator
+			if (opt.kind() == option::error)//error happened
+			{
+				Error();
+				return 0;
+			}
 		case 'h':
-		case '?':
 			Usage();
 			return 0;
 
