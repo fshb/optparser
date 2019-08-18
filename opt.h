@@ -91,7 +91,7 @@ int main(int argc, TCHAR* argv[])
 }
 
 #endif
-
+#pragma once
 #include <stdarg.h>
 #include <stdio.h>
 #include <tchar.h>
@@ -99,7 +99,7 @@ int main(int argc, TCHAR* argv[])
 #include <string>
 #include <algorithm>
 
-using str = std::basic_string<TCHAR, std::char_traits<TCHAR>, std::allocator<TCHAR>>;
+typedef std::basic_string<TCHAR, std::char_traits<TCHAR>, std::allocator<TCHAR> > str;
 
 class option
 {
@@ -178,15 +178,34 @@ private:
 	void parse_program_name(const str& optstr)
 	{
 		int i = optstr.length() - 1;
-		while (i >= 0)
+		bool b = false;
+		while (i != 0) //remove directory path in the name
 		{
 			if (optstr[i] == '\\')
 			{
 				_zProgramName = optstr.substr(i + 1);
+				b = true;
 				break;
 			}
 			i--;
 		}
+
+		if (!b)
+			_zProgramName = optstr;
+
+		i = _zProgramName.length() - 1;
+		b = false;
+		while (i != 0) //remove extension, e.g. ".exe"
+		{
+			if (_zProgramName[i] == '.')
+			{
+				_zProgramName = _zProgramName.substr(0, i);
+				break;
+			}
+			i--;
+		}
+		//to lower case
+		std::transform(_zProgramName.begin(), _zProgramName.end(), _zProgramName.begin(), ::tolower);
 	};
 
 	bool match_definition_by_optname(const str& optstr, definition& opt, definition optdefs[])
@@ -407,9 +426,7 @@ public:
 				else
 				{
 					if (argstr[2] == '\0') //"--" delimeter
-					{
 						is_operand_only = true;
-					}
 					else
 					{
 						if (parse_long_option(opt, argstr, need_argument, optdefs))
@@ -432,9 +449,7 @@ public:
 				}//END else
 			}//END if (!is_operand_only && argstr[0] == '-')
 			else
-			{
 				parse_operand(opt, argstr);
-			}
 		} //END for (i = 1; i < argc; i++)
 		_iOpt = 0;
 		parse_option_error();
