@@ -109,15 +109,16 @@ private:
 public:
 	TString() : _TStringBase(){}
 	TString(const TString& s) : _TStringBase((_TStringBase)s) {}
-	template<class T> TString(T s) : _TStringBase(s) {}
-	template<class T> TString(T& s) : _TStringBase(s) {}
-	template<class T> TString(T* s) : _TStringBase(s) {}
+	TString(const _TStringBase& s) : _TStringBase(s) {}
+	TString(const TCHAR* s) : _TStringBase(s) {}
 
 	template<class T> TString operator + (T& s)
 	{
 		_TStringBase ss = (_TStringBase) *this;
 		ss += s;
-		return ss;
+
+		TString ts(ss);
+		return ts;
 	}
 
 	template<class T> void operator = (T& s)
@@ -212,14 +213,90 @@ public:
 
 typedef TString str;
 
+class msghndlr
+{
+private:
+	struct msg_t
+	{
+		int priority;
+		bool suppress;
+		str msg;
+		msg_t() : priority(0), suppress(false) {}
+	};
+	std::vector<msg_t> _msgs;
+
+public:
+	msghndlr() {}
+	~msghndlr()
+	{
+		_msgs.clear();
+	}
+
+	msghndlr& operator()(int priority = 0, bool suppress = false)
+	{
+		msg_t msg;
+		msg.priority = priority;
+		msg.suppress = suppress;
+		_msgs.push_back(msg);
+		return *this;
+	}
+
+	template<class T> msghndlr& operator << (T& msg)
+	{
+		size_t i = _msgs.size() - 1;
+		_msgs[i].msg << msg;
+		return *this;
+	}
+
+	size_t count()
+	{
+		return _msgs.size();
+	}
+
+	msghndlr& format(const TCHAR* fmt, ...)
+	{
+		va_list ap;
+		va_start(ap, fmt);
+		size_t i = _msgs.size() - 1;
+		_msgs[i].msg.format(fmt, ap);
+		va_end(ap);
+		return *this;
+	}
+
+	void print()
+	{
+		struct
+		{
+			bool operator()(msg_t& msg1, msg_t& msg2)
+			{
+				return (msg1.priority < msg2.priority);
+			}
+		} _ascending_order;
+
+		std::sort(_msgs.begin(), _msgs.end(), _ascending_order);
+
+		struct
+		{
+			void operator()(msg_t& msg)
+			{
+				if(!msg.suppress)
+					_ftprintf(stdout, _T("%s"), msg.msg.c_str());
+			}
+		} _print_msg;
+
+		std::for_each(_msgs.begin(), _msgs.end(), _print_msg);
+	}
+};
+
 class errhndlr
 {
 private:
 	struct err_t
 	{
 		int err_code;
+		bool suppress;
 		str err_msg;
-		err_t() : err_code(0) {}
+		err_t() : err_code(0), suppress(false) {}
 	};
 	std::vector<err_t> _errs;
 public:
@@ -233,6 +310,7 @@ public:
 	{
 		err_t err;
 		err.err_code = errcode;
+		err.suppress = suppress;
 		_errs.push_back(err);
 		return *this;
 	}
@@ -279,7 +357,8 @@ public:
 		{
 			void operator()(err_t& err)
 			{
-				_ftprintf(stderr, _T("%s\n"), err.err_msg.c_str());
+				if (!err.suppress)
+					_ftprintf(stderr, _T("%s\n"), err.err_msg.c_str());
 			}
 		} _print_err;
 		
