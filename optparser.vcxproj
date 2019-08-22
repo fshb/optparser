@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{F979EAA3-4855-429A-9A82-CFAC7F19871A}</ProjectGuid>
+    <ProjectGuid>{4936BCA0-0707-40FC-82C0-BB6ACCB19276}</ProjectGuid>
     <RootNamespace>optparser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
